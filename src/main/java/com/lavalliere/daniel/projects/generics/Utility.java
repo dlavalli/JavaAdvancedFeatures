@@ -17,4 +17,12 @@ public class Utility {
             System.out.println(element.name());
         }
     }
+
+    // Process all subtypes that implement Number
+    public static void processNumbersWithSuper(Collection<MyList<? super Number>> collection) {
+        for(MyList<? super Number> element : collection) {
+            // TODO - Do something
+            System.out.println(element.name());
+        }
+    }
 }

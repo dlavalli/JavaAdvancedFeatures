@@ -5,5 +5,6 @@ package com.lavalliere.daniel.projects;
 public class Main {
     public static void main(String[] args) {
         NewJava21Features.demo();
+        NewJavaTime.demo();
     }
 }

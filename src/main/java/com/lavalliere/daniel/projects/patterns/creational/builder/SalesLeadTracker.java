@@ -1,9 +1,13 @@
 package com.lavalliere.daniel.projects.patterns.creational.builder;
 
 
+import com.lavalliere.daniel.projects.annotations.Demoable;
+import com.lavalliere.daniel.projects.annotations.IsDemoable;
+
 import java.time.LocalDate;
 
-public class SalesLeadTracker {
+@IsDemoable
+public class SalesLeadTracker implements Demoable {
 
     private SalesLeadTracker testAddPerson() {
         var person1 = new Person.PersonBuilder("Tracy", "Westbay")
@@ -27,9 +31,7 @@ public class SalesLeadTracker {
         System.out.println();
     }
 
-    public static void demo() {
-        new SalesLeadTracker()
-            .testAddPerson()
-        ;
+    public void demo() {
+        testAddPerson();
     }
 }

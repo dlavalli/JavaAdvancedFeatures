@@ -1,18 +1,26 @@
 package com.lavalliere.daniel.projects;
 
 
+import com.lavalliere.daniel.projects.annotations.Demoable;
+import com.lavalliere.daniel.projects.annotations.IsDemoable;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 
-import static java.util.FormatProcessor.FMT;
+// REMOVED in Java 23
+//import static java.util.FormatProcessor.FMT;
 
-public class NewJava21Features {
+@IsDemoable
+public class NewJava21Features implements Demoable {
 
+    // NOTE: record was introduced in java 17
     public record Product(String id, String name, double price) {}
 
+    //public NewJava21Features(){}
 
+    /*  REMOVED in Java 23
     public NewJava21Features showStringTemplates() {
         var product = new Product("bogusId", "bogusName", 2.0);
 
@@ -26,6 +34,7 @@ public class NewJava21Features {
 
         return this;
     }
+     */
 
     public NewJava21Features showOldCollections() {
         // Old way
@@ -78,12 +87,11 @@ public class NewJava21Features {
         return this;
     }
 
-    public static void demo() {
-        new NewJava21Features()
-                .showStringTemplates()
-                .showOldCollections()
-                .showSequencedCollections()
-
+    @Override()
+    public void demo() {
+        this.showOldCollections()
+            // .showStringTemplates()
+            .showSequencedCollections()
         ;
     }
 }

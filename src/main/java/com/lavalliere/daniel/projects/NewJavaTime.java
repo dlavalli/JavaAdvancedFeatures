@@ -1,6 +1,8 @@
 package com.lavalliere.daniel.projects;
 
-import javax.swing.text.DateFormatter;
+import com.lavalliere.daniel.projects.annotations.Demoable;
+import com.lavalliere.daniel.projects.annotations.IsDemoable;
+
 import java.time.*;
 import java.time.chrono.ChronoLocalDate;
 import java.time.chrono.Chronology;
@@ -12,7 +14,8 @@ import java.time.temporal.TemporalAdjuster;
 import java.time.zone.ZoneRules;
 import java.util.Locale;
 
-public class NewJavaTime {
+@IsDemoable
+public class NewJavaTime implements Demoable {
 
     /*
      * Issues with original Date / Time implementation
@@ -86,7 +89,7 @@ public class NewJavaTime {
 
         try {
             long day = now.get(ChronoField.DAY_OF_MONTH);
-        } catch(UnsupportedTemporalTypeException _) {
+        } catch(UnsupportedTemporalTypeException ex) {
             // Throws since instant is for machine and does not support individual human fields
             // but you can use Duration and Period classes
         }
@@ -107,7 +110,7 @@ public class NewJavaTime {
 
         try {
             Duration d2 = Duration.between(thenDate, nowDate);
-        } catch (UnsupportedTemporalTypeException _) {
+        } catch (UnsupportedTemporalTypeException ex) {
             // Not supported as Duration is an amount in seconds and have nanoseconds
             // which date does not have
 
@@ -134,7 +137,7 @@ public class NewJavaTime {
 
         try {
             Duration badDuration = Duration.between(LocalDateTime.now(), Instant.now());
-        } catch (DateTimeException _) {
+        } catch (DateTimeException ex) {
             // Cannot mix units meant for machine and those meant for human
         }
         return this;
@@ -259,19 +262,16 @@ public class NewJavaTime {
         return this;
     }
 
-
-
-    public static void demo() {
-        new NewJavaTime()
-                .doGetInstant()
-                .doGetLocalTime()
-                .doGetLocalDateTime()
-                .goGetDurationAndPeriod()
-                .doLocalDate()
-                .goDoDateManipulations()
-                .doGetZones()
-                .doTemporalAdjusters()
-                .doFormatAndParseDate()
+    public void demo() {
+        this.doGetInstant()
+            .doGetLocalTime()
+            .doGetLocalDateTime()
+            .goGetDurationAndPeriod()
+            .doLocalDate()
+            .goDoDateManipulations()
+            .doGetZones()
+            .doTemporalAdjusters()
+            .doFormatAndParseDate()
         ;
     }
 }

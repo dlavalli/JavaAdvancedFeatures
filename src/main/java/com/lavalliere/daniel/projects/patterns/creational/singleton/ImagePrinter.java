@@ -1,7 +1,11 @@
 package com.lavalliere.daniel.projects.patterns.creational.singleton;
 
 
-public class ImagePrinter {
+import com.lavalliere.daniel.projects.annotations.Demoable;
+import com.lavalliere.daniel.projects.annotations.IsDemoable;
+
+@IsDemoable
+public class ImagePrinter implements Demoable {
 
     public ImagePrinter printImage() {
         var spooler = PrintSpooler.getInstance();
@@ -12,10 +16,7 @@ public class ImagePrinter {
         return this;
     }
 
-    public static void demo() {
-        new ImagePrinter()
-            .printImage()
-        ;
+    public void demo() {
+        printImage();
     }
-
 }

@@ -7,6 +7,6 @@ public class NumberUtils {
     public final static String ODD = "event";
 
     static void evenOrOdd(int number) {
-        System.out.println(STR."\{number} is \{number % 2 == 0 ? EVEN : ODD }");
+        System.out.printf("%d is %s\n", number, (number % 2 == 0 ? EVEN : ODD ));
     }
 }

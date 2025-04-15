@@ -1,5 +1,8 @@
 package com.lavalliere.daniel.projects.ocaocr.streams;
 
+import com.lavalliere.daniel.projects.annotations.Demoable;
+import com.lavalliere.daniel.projects.annotations.IsDemoable;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BinaryOperator;
@@ -8,13 +11,14 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class Java8Features {
+@IsDemoable
+public class Java8Features implements Demoable {
     AtomicInteger ai1 = new AtomicInteger();
     AtomicInteger ai2 = new AtomicInteger();
 
     private Java8Features intAvg() {
         OptionalDouble average = IntStream.range(0, 5).average();
-        System.out.println(STR."The average is: \{average}");
+        System.out.printf("The average is: %f\n",average.isPresent() ? average.getAsDouble() : 0.0);
         return this;
     }
 
@@ -46,7 +50,7 @@ public class Java8Features {
         int sum = IntStream.range(0, 5).sum();
         int min = IntStream.range(0, 5).min().getAsInt();
         int max = IntStream.range(0, 5).max().getAsInt();
-        System.out.println(STR."sum: \{sum} min: \{min} max: \{max}");
+        System.out.printf("sum: %d min: %d max: %d", sum, min, max);
 
         List<Person> persons = List.of(
           new Person("Alan", "Burke", 22),
@@ -54,11 +58,11 @@ public class Java8Features {
           new Person("Peter", "Castle", 29)
         );
         int oldest = persons.stream().max(Comparator.comparing(Person::getAge)).get().getAge();
-        System.out.println(STR."Oldest: \{oldest}");
+        System.out.printf("Oldest: %d\n", oldest);
         List<Integer> nums = List.of(10, 47, 33, 23);
         Optional<Integer> max1 = nums.stream().reduce((a, b) -> a > b ? a : b);
         Integer max2 = nums.stream().reduce(0, (a, b) -> a > b ? a : b);
-        System.out.println(STR."max1: \{max1.get()} max2: \{max2}");
+        System.out.printf("max1: %d max2: %d\n",max1.get(),max2);
         return this;
     }
 
@@ -85,7 +89,7 @@ public class Java8Features {
         );
         booksByTitles.forEach(
             (key, value) -> {
-                if (key.startsWith("A")) System.out.println(STR."Title: \{key} Price: \{value}");
+                if (key.startsWith("A")) System.out.printf("Title: %s Price: %f\n",key, value.doubleValue());
             }
         );
         System.out.println();
@@ -107,7 +111,7 @@ public class Java8Features {
                     BinaryOperator.maxBy(Comparator.comparing((price -> price)))
                 )
             )
-            .forEach((title, cost) -> System.out.println(STR."title: \{title} cost: \{cost}"));
+            .forEach((title, cost) -> System.out.printf("title: %s cost: %f\n",title,cost.doubleValue()));
         return this;
     }
 
@@ -122,7 +126,7 @@ public class Java8Features {
             .mapToDouble(Person::getAge)
             .average()
             .orElse(0.0);
-        System.out.println(STR."Average: \{avg}");
+        System.out.printf("Average: %f\n",avg);
         System.out.println();
         return this;
     }
@@ -135,7 +139,7 @@ public class Java8Features {
 
         Optional<Double> price2 = Optional.ofNullable(null);
         System.out.println(price2);
-        System.out.println(STR."\{price2.isEmpty() ? "empty" : ""}");
+        System.out.printf("%s\n",price2.isEmpty() ? "empty" : "");
         price2.ifPresent(System.out::println);
         Double x = price2.orElse(44.0);
         System.out.println(x);
@@ -178,9 +182,9 @@ public class Java8Features {
 
     private Java8Features testLazy() {
         List<Integer> ls = List.of(11,11,22,33,33,55,66);
-        System.out.println(STR."anyMatch for 11: \{ls.stream().distinct().anyMatch(num -> num == 11)}");
+        System.out.printf("anyMatch for 11: %b\n", ls.stream().distinct().anyMatch(num -> num == 11));
         ls = List.of(11,11,22,33,33,55,66);
-        System.out.println(STR."nonMatch for x % 11: \{ls.stream().distinct().noneMatch(x -> x % 11 > 0)}");
+        System.out.printf("nonMatch for x %% 11: %b\n", ls.stream().distinct().noneMatch(x -> x % 11 > 0));
         System.out.println();
         return this;
     }
@@ -211,23 +215,21 @@ public class Java8Features {
         return this;
     }
 
-    public static void demo() {
-        Java8Features features = new Java8Features()
-            .intAvg()
+    public void demo() {
+        this.intAvg()
             .itemList()
             .flatMap()
             .intList()
-        ;
+            ;
 
         Optional<String> grade1 = getGrade(50);
         Optional<String> grade2 = getGrade(55);
-        System.out.println(STR."grade1: \{grade1.orElse("UNKNOWN")}");
+        System.out.printf("grade1: %s\n",grade1.orElse("UNKNOWN"));
 
         if (grade2.isPresent()) grade2.ifPresent(System.out::println);
-        else System.out.println(STR."\{grade2.orElse("Empty")}");
+        else System.out.printf("%s\n",grade2.orElse("Empty") );
 
-        features
-            .filterBooks()
+        this.filterBooks()
             .filterDuplicateBooks()
             .avgFilteredElements()
             .checkOptional()

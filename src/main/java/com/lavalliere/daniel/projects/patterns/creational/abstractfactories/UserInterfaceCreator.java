@@ -1,6 +1,10 @@
 package com.lavalliere.daniel.projects.patterns.creational.abstractfactories;
 
-public class UserInterfaceCreator {
+import com.lavalliere.daniel.projects.annotations.Demoable;
+import com.lavalliere.daniel.projects.annotations.IsDemoable;
+
+@IsDemoable
+public class UserInterfaceCreator implements Demoable {
 
     private UserInterface createUserInterface(String color) {
         var userInterfaceFactory = FactoryMaker.createFactory(color);
@@ -18,9 +22,7 @@ public class UserInterfaceCreator {
         return this;
     }
 
-    public static void demo() {
-        new UserInterfaceCreator()
-            .createIt()
-        ;
+    public void demo() {
+        createIt();
     }
 }

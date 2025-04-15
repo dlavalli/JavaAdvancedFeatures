@@ -1,6 +1,10 @@
 package com.lavalliere.daniel.projects.patterns.creational.factorymethod;
 
-public class TicketOffice {
+import com.lavalliere.daniel.projects.annotations.Demoable;
+import com.lavalliere.daniel.projects.annotations.IsDemoable;
+
+@IsDemoable
+public class TicketOffice implements Demoable {
 
     private final TicketMachine ticketMachine = new TicketMachine();
 
@@ -21,9 +25,7 @@ public class TicketOffice {
         return this;
     }
 
-    public static void demo() {
-        new TicketOffice()
-            .buyTickets()
-        ;
+    public void demo() {
+        buyTickets();
     }
 }

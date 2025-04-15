@@ -1,8 +1,12 @@
 package com.lavalliere.daniel.projects.patterns.creational.prototype;
 
+import com.lavalliere.daniel.projects.annotations.Demoable;
+import com.lavalliere.daniel.projects.annotations.IsDemoable;
+
 import java.util.List;
 
-public class Cityscape {
+@IsDemoable
+public class Cityscape implements Demoable {
 
     private void createCityscape(List<Graphic> graphics) {
         System.out.println("Constructing cityscape: ");
@@ -33,9 +37,7 @@ public class Cityscape {
         return this;
     }
 
-    public static void demo() {
-        new Cityscape()
-            .buildIt()
-        ;
+    public void demo() {
+        buildIt();
     }
 }

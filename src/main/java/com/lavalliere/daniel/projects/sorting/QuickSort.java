@@ -19,7 +19,7 @@ public class QuickSort implements Demoable {
         // Locate all elements lower or equal and swap them, to LHS partition
         for (int j=low; j < high; j++) {
             if (arr[j] <= pivot) {
-                
+
                 i++; // Swapping an element
 
                 // Swap the 2 elements

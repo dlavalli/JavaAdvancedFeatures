@@ -114,6 +114,11 @@ public class NewJavaTime implements Demoable {
             // Not supported as Duration is an amount in seconds and have nanoseconds
             // which date does not have
 
+
+            // The main difference between Duration.between() and Period.between() in Java is that
+            // Duration measures time-based amounts (seconds and nanoseconds),
+            // while Period measures date-based amounts (years, months, and days)
+
             // When need to model amount of time in terms of days, month, days
             Period period = Period.between(thenDate, nowDate);
             long days = period.getDays();
@@ -122,6 +127,10 @@ public class NewJavaTime implements Demoable {
         LocalDateTime nowDateTime = LocalDateTime.now();
         LocalDateTime thenDateTime = nowDateTime.minus(5, ChronoUnit.DAYS);
         thenDateTime = nowDateTime.minusDays(1);
+
+        // The main difference between Duration.between() and Period.between() in Java is that
+        // Duration measures time-based amounts (seconds and nanoseconds),
+        // while Period measures date-based amounts (years, months, and days)
         Duration d3 = Duration.between(thenDateTime, nowDateTime);
 
         ZoneId newYorkZone = ZoneId.of("America/New_York");

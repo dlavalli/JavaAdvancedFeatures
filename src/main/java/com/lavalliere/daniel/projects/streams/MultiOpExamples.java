@@ -5,6 +5,7 @@ import com.lavalliere.daniel.projects.annotations.IsDemoable;
 import com.sun.source.tree.Tree;
 
 import javax.swing.plaf.multi.MultiButtonUI;
+import javax.swing.plaf.multi.MultiMenuItemUI;
 import java.security.InvalidParameterException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -560,6 +561,73 @@ public class MultiOpExamples implements Demoable {
         return this;
     }
 
+    public MultiOpExamples findNthSmallestNumberInList() {
+        System.out.println("findNthSmallestNumberInList");
+        int n = 3 ;
+        int num = Stream.of(5, 3, 8, 1, 4).sorted().skip(n - 1).findFirst().orElseThrow(IllegalArgumentException::new);
+        System.out.println("findNthSmallestNumberInList: with n=" + n + " is: " + num);
+        return this;
+    }
+
+    public MultiOpExamples duplicateWordsInParagraph(){
+        System.out.println("duplicateWordsInParagraph");
+        List<String> words = Arrays.stream("Hello hello world world world".split(" "))
+                .map(word -> word.toLowerCase())
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream().filter(entry -> entry.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .toList();
+        System.out.println("duplicateWordsInParagraph: " + words);
+        return this;
+    }
+
+    public MultiOpExamples findNumbersDivisibleBy2And3And5() {
+        System.out.println("findNumbersDivisibleBy2And3And5");
+        List<Integer> nums = Stream.of(10,15,30,45,60,75)
+                .filter(num -> num % 2 == 0 && num %3 == 0 && num %5 == 0)
+                .toList();
+        System.out.println("findNumbersDivisibleBy2And3And5: " + nums);
+        return this;
+    }
+
+    public MultiOpExamples findLongestIncreasingSubsequenceInNumberList() {
+        System.out.println("findLongestIncreasingSubsequenceInNumberList");
+        List<Integer> nums = List.of(10,22,9,33,21,50,41,60);
+
+        // NOTE: Resolution of this has NOTHING to do with streams, only used to determine the max
+        int[] depths = new int[nums.size()];
+        Arrays.fill(depths, 1);
+
+        for(int endIndex=1; endIndex < nums.size(); endIndex++) {
+            for(int startIndex=0; startIndex < endIndex; startIndex++) {
+                if (nums.get(endIndex) > nums.get(startIndex) &&
+                    depths[endIndex] < depths[startIndex] + 1) {
+                    depths[endIndex] = depths[startIndex] + 1;
+                }
+            }
+        }
+
+        int maxLength = Arrays.stream(depths).max().orElse(0);
+        System.out.println("findLongestIncreasingSubsequenceInNumberList: " + maxLength);
+        return this;
+    }
+
+    public MultiOpExamples reverseQueue() {
+        System.out.println("reverseQueue");
+        Queue<Integer> queue = new LinkedList<>(Arrays.asList(1, 2, 3, 4, 5));
+        Queue<Integer> reversedQueue = new LinkedList<>();
+
+        queue.stream()
+            .collect(Collectors.toCollection(LinkedList::new))
+            .descendingIterator().forEachRemaining(reversedQueue::add); // Using LinkedList::forEachRemaining
+                                                                        // Also possible: ArrayDeque, TreeSet
+                                                                        // java.util.concurrent.ConcurrentSkipListSet (threadsafe)
+        System.out.println("reverseQueue: " + reversedQueue);
+        return this;
+    }
+
+    // 2.11.45
+
     @Override
     public void demo() {
         new MultiOpExamples()
@@ -599,6 +667,11 @@ public class MultiOpExamples implements Demoable {
             .convertDatesToCorrespondingDayOfTheWeekAndCountOccurences()
             .findEmployeeWithSecondHighestSalaryByDepartment()
             .findMostCommonDomainNameInEmailList()
+            .findNthSmallestNumberInList()
+            .duplicateWordsInParagraph()
+            .findNumbersDivisibleBy2And3And5()
+            .findLongestIncreasingSubsequenceInNumberList()
+            .reverseQueue()
         ;
     }
 }

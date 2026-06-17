@@ -6,6 +6,7 @@ import com.sun.source.tree.Tree;
 
 import javax.swing.plaf.multi.MultiButtonUI;
 import java.security.InvalidParameterException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Period;
@@ -369,7 +370,8 @@ public class MultiOpExamples implements Demoable {
             new Transaction(LocalDate.of(2023, 10, 1), 200.0),
             new Transaction(LocalDate.of(2023, 9, 15), 150.0),
             new Transaction(LocalDate.of(2023, 9, 15), 50.0)
-        ).sorted(Comparator.comparing(Transaction::date)
+        ).sorted(
+            Comparator.comparing(Transaction::date)
             .thenComparing(Comparator.comparing(Transaction::amount).reversed())
         ).toList();
         System.out.println("sortTransactionListByDateThenByAmountDescending: " + transactions);
@@ -402,7 +404,7 @@ public class MultiOpExamples implements Demoable {
 
     public MultiOpExamples findEmployeesAverageAgePerDepartmentThenFindDepartmentWithHighest() {
         System.out.println("findEmployeesAverageAgePerDepartmentThenFindDepartmentWithHighest");
-        Map.Entry entry =Stream.of(
+        Map.Entry entry = Stream.of(
             new CommonExamples.Employee("Alice", "HR", 50000, LocalDate.of(2022,10,30), 30),
             new CommonExamples.Employee("Bob", "IT", 60000, LocalDate.of(2023,1,20), 25),
             new CommonExamples.Employee("Charlie", "HR", 45000, LocalDate.of(2021,5,10), 35),
@@ -500,6 +502,64 @@ public class MultiOpExamples implements Demoable {
         return this;
     }
 
+    public MultiOpExamples convertDatesToCorrespondingDayOfTheWeekAndCountOccurences() {
+        System.out.println("convertDatesToCorrespondingDayOfTheWeekAndCountOccurences");
+        Map<DayOfWeek, Long> result = Stream.of(
+            LocalDate.of(2023,1,15),
+            LocalDate.of(2023,1,16),
+            LocalDate.of(2023,1,17),
+            LocalDate.of(2023,1,18),
+            LocalDate.of(2023,1,19),
+            LocalDate.of(2023,1,20),
+            LocalDate.of(2023,1,21),
+            LocalDate.of(2023,1,22),
+            LocalDate.of(2023,1,23),
+            LocalDate.of(2023,1,24),
+            LocalDate.of(2023,1,25)
+        ).map(localDate -> localDate.getDayOfWeek())
+         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        System.out.println("convertDatesToCorrespondingDayOfTheWeekAndCountOccurences: " + result);
+        return this;
+    }
+
+    public MultiOpExamples findEmployeeWithSecondHighestSalaryByDepartment() {
+        System.out.println("findEmployeeWithSecondHighestSalaryByDepartment");
+        Map<String, CommonExamples.Employee> result = Stream.of(
+            new CommonExamples.Employee("Alice", "HR", 50000, LocalDate.of(2022,10,30), 30),
+            new CommonExamples.Employee("Bob", "IT", 60000, LocalDate.of(2023,1,20), 25),
+            new CommonExamples.Employee("Charlie", "HR", 55000, LocalDate.of(2021,5,10), 35),
+            new CommonExamples.Employee("David", "IT", 70000, LocalDate.of(2023,3,5), 40),
+            new CommonExamples.Employee("Eve", "Finance", 65000, LocalDate.of(2023,3,5), 50),
+            new CommonExamples.Employee("Frank", "Finance", 75000, LocalDate.of(2023,3,5), 50)
+        )
+        .collect(Collectors.groupingBy(
+            CommonExamples.Employee::department,
+            Collectors.collectingAndThen(
+                Collectors.toList(), // The content to process
+                employees -> employees.stream()
+                    // .peek(employee -> System.out.println("An employee: " + employee))
+                    .sorted(Comparator.comparing(CommonExamples.Employee::salary).reversed())
+                    .skip(1) // ie: Each must have at least 2 instances else will fail ie: null as employee
+                    .findFirst()
+                    .orElse(null)
+            ))
+        );
+        System.out.println("findEmployeeWithSecondHighestSalaryByDepartment: " + result);
+        return this;
+    }
+
+    public MultiOpExamples findMostCommonDomainNameInEmailList() {
+        System.out.println("findMostCommonDomainNameInEmailList");
+        String domain = Stream.of("user1@example.com","user2@domain.com","user3@example.com", "user4@example.com","user5@domain.com")
+            .map(email -> email.substring(email.indexOf("@") + 1))
+            .collect(Collectors.groupingBy(
+                Function.identity(),
+                Collectors.counting()
+            )).entrySet().stream().max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse(null);
+        System.out.println("findMostCommonDomainNameInEmailList: " + domain);
+        return this;
+    }
+
     @Override
     public void demo() {
         new MultiOpExamples()
@@ -536,6 +596,9 @@ public class MultiOpExamples implements Demoable {
             .findEmployeesWithVowelsInTheirNamesThenSortThem()
             .groupEmployeesThoseWithVowelsAndThoseWithout()
             .groupTransactionsSortedByMonthAndCountThem()
+            .convertDatesToCorrespondingDayOfTheWeekAndCountOccurences()
+            .findEmployeeWithSecondHighestSalaryByDepartment()
+            .findMostCommonDomainNameInEmailList()
         ;
     }
 }

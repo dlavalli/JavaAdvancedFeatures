@@ -4,10 +4,7 @@ import com.lavalliere.daniel.projects.annotations.Demoable;
 import com.lavalliere.daniel.projects.annotations.IsDemoable;
 
 import java.security.InvalidParameterException;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.Period;
+import java.time.*;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -25,9 +22,11 @@ public class MultiOpExamples implements Demoable {
         }
     }
 
-    public record Transaction (LocalDate date, double amount, String userId, String id) {}
+    public record Transaction (LocalDateTime date, double amount, String userId, String id) {}
 
     public record Product(String name, String category, double price, double sales) {}
+
+    public record Task(String name, LocalDate deadlilne, int priority) {}
 
     public MultiOpExamples findSecondMostFrequentCharInString() {
         System.out.println("findSecondMostFrequentCharInString");
@@ -364,10 +363,10 @@ public class MultiOpExamples implements Demoable {
     public MultiOpExamples sortTransactionListByDateThenByAmountDescending() {
         System.out.println("sortTransactionListByDateThenByAmountDescending");
         List<Transaction> transactions = Stream.of(
-            new Transaction(LocalDate.of(2023, 10, 1), 100.0, "U1", "T1"),
-            new Transaction(LocalDate.of(2023, 10, 1), 200.0, "U1", "T1"),
-            new Transaction(LocalDate.of(2023, 9, 15), 150.0, "U1", "T1"),
-            new Transaction(LocalDate.of(2023, 9, 15), 50.0, "U1", "T1")
+            new Transaction(LocalDateTime.of(2023, 10, 1, 0, 0 ,0), 100.0, "U1", "T1"),
+            new Transaction(LocalDateTime.of(2023, 10, 1, 0, 0 ,0), 200.0, "U1", "T1"),
+            new Transaction(LocalDateTime.of(2023, 9, 15, 0, 0 ,0), 150.0, "U1", "T1"),
+            new Transaction(LocalDateTime.of(2023, 9, 15, 0, 0 ,0), 50.0, "U1", "T1")
         ).sorted(
             Comparator.comparing(Transaction::date)
             .thenComparing(Comparator.comparing(Transaction::amount).reversed())
@@ -478,11 +477,11 @@ public class MultiOpExamples implements Demoable {
     public MultiOpExamples groupTransactionsSortedByMonthAndCountThem() {
         System.out.println("groupTransactionsSortedByMonthAndCountThem");
         Map<Month, Long> trCount = Stream.of(
-            new Transaction(LocalDate.of(2023, 1, 15), 100.0, "U1", "T1"),
-            new Transaction(LocalDate.of(2023, 1, 20), 200.0, "U1", "T1"),
-            new Transaction(LocalDate.of(2023, 2, 10), 150.0, "U1", "T1"),
-            new Transaction(LocalDate.of(2023, 2, 25), 300.0, "U1", "T1"),
-            new Transaction(LocalDate.of(2023, 3, 5), 250.0, "U1", "T1")
+            new Transaction(LocalDateTime.of(2023, 1, 15, 0, 0 ,0), 100.0, "U1", "T1"),
+            new Transaction(LocalDateTime.of(2023, 1, 20, 0, 0 ,0), 200.0, "U1", "T1"),
+            new Transaction(LocalDateTime.of(2023, 2, 10, 0, 0 ,0), 150.0, "U1", "T1"),
+            new Transaction(LocalDateTime.of(2023, 2, 25, 0, 0 ,0), 300.0, "U1", "T1"),
+            new Transaction(LocalDateTime.of(2023, 3, 5, 0, 0 ,0), 250.0, "U1", "T1")
         ).collect(
             Collectors.groupingBy(   // Use TreeMap to get a sorted map
                 transaction -> transaction.date.getMonth(),
@@ -907,7 +906,199 @@ public class MultiOpExamples implements Demoable {
 
     public MultiOpExamples findFraudulentTransactionsBasedOnFrequencyAndAmount() {
         System.out.println("findFraudulentTransactionsBasedOnFrequencyAndAmount");
+        List<String> result = Stream.of(
+            new Transaction(LocalDateTime.of(2023, 10, 1, 0, 0 ,0), 5000.0, "U1", "T1"),
+            new Transaction(LocalDateTime.of(2023, 10, 1, 0, 1 ,0), 3000.0, "U1", "T2"),
+            new Transaction(LocalDateTime.of(2023, 10, 1, 0, 2 ,0), 2000.0, "U1", "T3"),
+            new Transaction(LocalDateTime.of(2023, 10, 1, 0, 3 ,0), 1000.0, "U1", "T4"),
+            new Transaction(LocalDateTime.of(2023, 10, 1, 0, 4 ,0), 15000.0, "U2", "T5")
+        ).collect(Collectors.groupingBy(Transaction::userId))
+         .entrySet().stream()
+         .flatMap(entry -> {
+            String userId = entry.getKey();
+            List<Transaction> userTransactions = entry.getValue();
+            userTransactions.sort(Comparator.comparing(Transaction::date)); // Could also previously be sorted for each customer
 
+            for(int i=0; i < userTransactions.size(); i++) {
+                LocalDateTime startDate = userTransactions.get(i).date();
+                LocalDateTime endDate = startDate.plusMinutes(5);
+
+                // Locate the transactions that fall within the 5 min sliding window
+                List<Transaction> windowTransactions = userTransactions.stream()
+                    .filter(t -> !t.date.isBefore(startDate) && !t.date.isAfter(endDate))
+                    .toList();
+
+                // Total transactions amount for 5 min sliding window
+                double totalMount = windowTransactions.stream().mapToDouble(Transaction::amount).sum();
+
+                if (windowTransactions.size() > 3 && totalMount > 10000) {
+                    // Return a Stream<TransactionId>
+                    return windowTransactions.stream().map(t -> t.id);
+                }
+            }
+
+            // Default empty Stream<TransactionId> for users that do not match
+            return Stream.empty();
+
+         }).toList();
+        System.out.println("findFraudulentTransactionsBasedOnFrequencyAndAmount: " + result);
+        return this;
+    }
+
+    public MultiOpExamples commonHashTagsBetweenTwoLists() {
+        System.out.println("commonHashTagsBetweenTwoLists");
+        List<String> hashtagsTweet1 = Stream.of(
+            "#Java #Programming",
+            "#Spring #Framework",
+            "#Java #Streams"
+        ).flatMap(s -> Arrays.stream(s.split(" ")))
+         .map(String::toLowerCase)
+         .distinct()
+         .toList();
+
+        List<String> hashtagsTweet2 = Stream.of(
+            "#Java #Collections",
+            "#Spring #Boot",
+            "#Hibernate #ORM"
+        ).flatMap(s -> Arrays.stream(s.split(" ")))
+         .map(String::toLowerCase)
+         .distinct()
+         .toList();
+
+        List<String> commonHashtags = hashtagsTweet1.stream()
+        .filter(hashtagsTweet2::contains)  // Notice refer directly to method ref for other list
+        .toList();
+
+        System.out.println("commonHashTagsBetweenTwoLists: common hashtags are: " + commonHashtags);
+        return this;
+    }
+
+    public MultiOpExamples sortStudentListByHighestMarkToLowestThenByName() {
+        System.out.println("sortStudentListByHighestMarkToLowestThenByName");
+        List<Student> students = Stream.of(
+            new Student("Alice", List.of(85)),
+            new Student("Bob", List.of(90)),
+            new Student("Charlie", List.of(85)),
+            new Student("David", List.of(90))
+        ).sorted(Comparator.<Student>comparingInt(student -> student.marks().get(0)).reversed().thenComparing(Student::name))
+         .toList();
+        System.out.println("sortStudentListByHighestMarkToLowestThenByName: " + students);
+        return this;
+    }
+
+    public MultiOpExamples findLongestSubstringOfUniqueCharacters() {
+        System.out.println("findLongestSubstringOfUniqueCharacters");
+        String input = "abcabcbb";
+
+        String longest = IntStream.range(0, input.length())
+            .mapToObj(startIndex -> {
+                Set<Character> uniqueChars = new HashSet<>();
+
+                int endIndex = startIndex;
+                while(endIndex < input.length() &&  uniqueChars.add(input.charAt(endIndex))) {
+                    endIndex++;
+                }
+                return input.substring(startIndex, endIndex);
+            }).max(Comparator.comparingInt(String::length))
+            .orElse(null);
+        System.out.println("findLongestSubstringOfUniqueCharacters: " + longest + " with length: " +  longest.length() );
+        return this;
+    }
+
+    public MultiOpExamples findMissingNumbersInSequence() {
+        System.out.println("findMissingNumbersInSequence");
+        List<Integer> sequence = List.of(1,2,4,6,7,10);
+        int min = sequence.stream().min(Integer::compareTo).orElse(0);  // 0 to prevent too long processing with Integer.MIN_VALUE
+        int max = sequence.stream().max(Integer::compareTo).orElse(0);  // 0 to prevent too long processing with Integer.MIN_VALUE
+
+        List<Integer> missing = IntStream.rangeClosed(min, max)
+            .boxed()
+            .filter(n -> !sequence.contains(n))
+            .toList();
+        System.out.println("findMissingNumbersInSequence: " + missing);
+        return this;
+    }
+
+    public MultiOpExamples findSentencesContainingAtLeastOnceKeywordFromAList() {
+        System.out.println("findSentencesContainingAtLeastOnceKeywordFromAList");
+        List<String> tokens = List.of("Java", "Streams");
+        List<String> sentences = Stream.of("Hello world", "Java is fun", "Streams are powerful")
+            .filter(sentence -> tokens.stream().anyMatch(token -> sentence.contains(token)))
+            .toList();
+        System.out.println("findSentencesContainingAtLeastOnceKeywordFromAList: " + sentences);
+        return this;
+    }
+
+    public MultiOpExamples groupPhoneNumbersByAreaCodeAndCountOccurrences() {
+        System.out.println("groupPhoneNumbersByAreaCodeAndCountOccurrences");
+        Map<String, Long> areaCodeCount = Stream.of("123-456-7890", "234-567-8901", "123-987-6543", "123-555-1234", "234-999-8888")
+            .collect(
+                Collectors.groupingBy(phoneNumber -> phoneNumber.substring(0, 3),  Collectors.counting())
+            );
+        System.out.println("groupPhoneNumbersByAreaCodeAndCountOccurrences: " + areaCodeCount);
+        return this;
+    }
+
+    public MultiOpExamples findMostRequestEndpoint() {
+        System.out.println("findMostRequestEndpoint");
+        String endpoint = Stream.of("/home", "/about", "/contact", "/home", "/about", "/home", "/contact", "/home")
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+            .entrySet().stream()
+            .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+            .map(Map.Entry::getKey)
+            .findFirst()
+            .orElseThrow(IllegalStateException::new);
+        System.out.println("findMostRequestEndpoint: " + endpoint);
+        return this;
+    }
+
+
+    public MultiOpExamples findWordsUniqueToEachLists() {
+        System.out.println("findWordsUniqueToEachLists");
+        List<String> list1 = List.of("apple", "banana", "cherry");
+        List<String> list2 = List.of("banana", "date", "fig");
+        List<String> words = Stream.of(list1, list2).flatMap(List::stream)
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+            .entrySet().stream()
+            .filter(entry -> entry.getValue() == 1)
+            .map(Map.Entry::getKey)
+            .toList();
+        System.out.println("findWordsUniqueToEachLists: " + words);
+        return this;
+    }
+
+    // A moving average is a statistical technique used to smooth out short-term fluctuations
+    // in time-series data, highlighting longer-term trends or cycles. It works by calculating
+    // the average of a specific number of sequential data points (the "sliding window")
+    // and shifting this window forward across the dataset.
+    public MultiOpExamples calculateMovingAverageOverTimeSeriesDataset() {
+        System.out.println("calculateMovingAverageOverTimeSeriesDataset");
+        List<Double> data = List.of(10.0, 20.0, 30.0, 40.0, 50.0);
+        int windowSize = 3;
+
+        List<Double> window = IntStream.range(0, data.size() - windowSize + 1)
+            .mapToObj(i -> data.subList(i, i + windowSize).stream()
+                .mapToDouble(Double::doubleValue) // Required to generate a DoubleStream and the call .average on it
+                .average()
+                .orElse(0)
+            ).toList();
+        System.out.println("calculateMovingAverageOverTimeSeriesDataset: " + window);
+        return this;
+    }
+
+    public MultiOpExamples filterAndPrioritizeTasksBasedOnDeadlines() {
+        System.out.println("filterAndPrioritizeTasksBasedOnDeadlines");
+        // NOTE : lower priority number = higher priority
+        int threshold = 7;
+        List<Task> priorityTasks = Stream.of(
+            new Task("Task A", LocalDate.now().plusDays(3), 1),
+            new Task("Task B", LocalDate.now().plusDays(10), 2),
+            new Task("Task C", LocalDate.now().plusDays(3), 3),
+            new Task("Task D", LocalDate.now().plusDays(1), 1)
+        ).filter(task -> task.deadlilne.isBefore(LocalDate.now().plusDays(threshold)))
+            .sorted(Comparator.comparing(Task::deadlilne).thenComparing(Task::priority))
+            .toList();
+        System.out.println("filterAndPrioritizeTasksBasedOnDeadlines: " + priorityTasks);
         return this;
     }
 
@@ -969,6 +1160,17 @@ public class MultiOpExamples implements Demoable {
             .findUniqueBigramsInString()
             .findTop3WordsInParagraph()
             .findCustomersWithPurchasesInConsecutiveMonths()
+            .findFraudulentTransactionsBasedOnFrequencyAndAmount()
+            .commonHashTagsBetweenTwoLists()
+            .sortStudentListByHighestMarkToLowestThenByName()
+            .findLongestSubstringOfUniqueCharacters()
+            .findMissingNumbersInSequence()
+            .findSentencesContainingAtLeastOnceKeywordFromAList()
+            .groupPhoneNumbersByAreaCodeAndCountOccurrences()
+            .findMostRequestEndpoint()
+            .findWordsUniqueToEachLists()
+            .calculateMovingAverageOverTimeSeriesDataset()
+            .filterAndPrioritizeTasksBasedOnDeadlines()
         ;
     }
 }

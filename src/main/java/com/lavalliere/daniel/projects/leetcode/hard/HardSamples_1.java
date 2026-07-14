@@ -1,10 +1,10 @@
-package com.lavalliere.daniel.projects.leetcode;
+package com.lavalliere.daniel.projects.leetcode.hard;
 
 import com.lavalliere.daniel.projects.annotations.Demoable;
 import com.lavalliere.daniel.projects.annotations.IsDemoable;
 
 @IsDemoable
-public class Hard implements Demoable {
+public class HardSamples_1 implements Demoable {
 
     public boolean isMatch(String s, String p) {
 
@@ -30,7 +30,7 @@ public class Hard implements Demoable {
         }
     }
 
-    private Hard testExpressionMatch() {
+    private HardSamples_1 testExpressionMatch() {
 
         // True Set
         System.out.println(String.format("Match for String: %s pattern:%s if %b", "aa", "a*", isMatch("aa", "a*")));
@@ -61,7 +61,7 @@ public class Hard implements Demoable {
 
     @Override
     public void demo() {
-        new Hard()
+        new HardSamples_1()
             .testExpressionMatch()
         ;
     }

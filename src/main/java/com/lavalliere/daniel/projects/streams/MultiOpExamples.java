@@ -436,7 +436,7 @@ public class MultiOpExamples implements Demoable {
                 entry -> entry.getValue().stream()       // Stream all products listed
                     .sorted(Comparator.comparing(Product::sales).reversed()) // Iterating through values so Product not Optional<Product>
                     .limit(3)
-                .collect(Collectors.toList())
+                    .collect(Collectors.toList())
             ));
         System.out.println("findTop3HighestSellingProductByCategory: " + products);
         return this;
@@ -860,8 +860,9 @@ public class MultiOpExamples implements Demoable {
             // The following shows how to generate a sorted TreeMap using the provided Map.Entry values
             //.collect(Collectors.toMap(
             //    Map.Entry::getKey,
-            //    Map.Entry::getValue,
-            //    (oldValue, newValue) -> newValue, // Handle duplicate entries
+            //    Map.Entry::getValue,  // NOTE This will be interpreted as Collection<T> not List<T>
+            //                          // To have a Collection<T>, use new ArrayList<>(..your value here)
+            //    (oldValue, newValue) -> newValue, // Handle duplicate entries, Will be types according to line above
             //    TreeMap::new
             //));
         return this;
